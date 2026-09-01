@@ -71,13 +71,13 @@ Start-Process -FilePath $chrome -ArgumentList @(
 ```
 
 ```powershell
-# Register the scheduled task: starts at 5:00 AM, repeats every 3.5 hours
+# Register the scheduled task: starts at 5:00 AM, repeats every 10 hours
 # indefinitely, plus relaunches on every logon.
 $action = New-ScheduledTaskAction -Execute "powershell.exe" `
     -Argument '-NoProfile -WindowStyle Hidden -File "C:\Kiosk\Launch-Kiosk.ps1"'
 
 $triggerRepeat = New-ScheduledTaskTrigger -Once -At (Get-Date -Hour 5 -Minute 0 -Second 0) `
-    -RepetitionInterval (New-TimeSpan -Hours 3 -Minutes 30)
+    -RepetitionInterval (New-TimeSpan -Hours 10 -Minutes 0)
 $triggerRepeat.Repetition.Duration = ""   # empty = repeat indefinitely
 
 $triggerLogon = New-ScheduledTaskTrigger -AtLogOn
