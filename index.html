@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beacon Ridge Commons — Directory Board (Portfolio Demo)</title>
+<style>
+  :root {
+    --navy: #0D2B2E;
+    --navy-deep: #071A1C;
+    --gold: #FFB627;
+    --gold-brand: #E0960F;
+    --red: #E23D28;
+    --charcoal: #14201F;
+    --paper: #F7F3E8;
+    --ink: #1D2321;
+    --rule: rgba(255, 182, 39, 0.30);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--navy);
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #stage {
+    position: absolute;
+    top: 0; left: 0;
+    transform-origin: top left;
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 26px 34px 22px;
+  }
+  header.light { background: #fff; }
+  header.light .building .h1,
+  header.light .building .h3 { color: var(--navy); }
+  header.light .building .h2 { color: var(--gold-brand); }
+
+  .logo { flex: none; line-height: 0; }
+  .logo img { display: block; height: 92px; width: auto; }
+
+  .wordmark { color: #fff; line-height: 1; }
+  .wordmark .name {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 46px;
+    letter-spacing: 2px;
+  }
+  .wordmark .tag {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    letter-spacing: 4px;
+    margin-top: 6px;
+    opacity: 0.92;
+  }
+  .building { text-align: right; color: #fff; line-height: 1.15; }
+  .building .h1 { font-size: 42px; font-weight: 600; }
+  .building .h2 { font-size: 29px; color: var(--gold); margin-top: 4px; }
+  .building .h3 { font-size: 20px; opacity: 0.9; margin-top: 4px; }
+
+  .urgent {
+    background: var(--red);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 34px;
+  }
+  .cross {
+    width: 34px; height: 34px;
+    flex: none;
+    background: #fff;
+    border-radius: 50%;
+    position: relative;
+  }
+  .cross::before, .cross::after {
+    content: "";
+    position: absolute;
+    background: var(--red);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .cross::before { width: 7px; height: 19px; }
+  .cross::after  { width: 19px; height: 7px; }
+  .urgent .label { font-size: 30px; font-weight: 600; letter-spacing: 0.3px; }
+  .urgent .where { margin-left: auto; font-size: 22px; }
+
+  .floorband {
+    background: var(--charcoal);
+    color: #fff;
+    padding: 11px 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 24px;
+    font-weight: 600;
+  }
+  .floorband .hint { font-size: 17px; font-weight: 400; opacity: 0.72; }
+  .floorband.here {
+    border-left: 5px solid var(--gold);
+    padding-left: 29px;
+  }
+  .floorband.here .hint { color: var(--gold); opacity: 1; }
+
+  .suite {
+    display: flex;
+    align-items: center;
+    padding: 15px 34px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .suite:last-child { border-bottom: none; }
+  .suite.vacant { opacity: 0.55; }
+  .suite.vacant .who { font-style: italic; }
+  .suite .num {
+    color: var(--gold);
+    font-size: 25px;
+    font-weight: 600;
+    width: 92px;
+    flex: none;
+  }
+  .suite .who { color: #fff; font-size: 24px; }
+  .suite .dir {
+    margin-left: auto;
+    color: var(--gold);
+    font-size: 30px;
+    line-height: 1;
+  }
+  .suite .note {
+    margin-left: auto;
+    color: #fff;
+    font-size: 18px;
+    opacity: 0.85;
+  }
+
+  /* Provider lists, nested inside the suite they belong to */
+  .group { padding: 20px 34px 22px 126px; }
+  .group.paper { background: var(--paper); }
+  .group.muted { background: #DEE3DA; }
+  .group.dark  { background: var(--navy-deep); }
+
+  .group h2 {
+    color: var(--navy);
+    font-size: 21px;
+    font-weight: 600;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.22);
+  }
+  .group.dark h2 { color: var(--gold); border-bottom-color: rgba(255,255,255,0.28); }
+  .group.muted h2 { border-bottom-color: rgba(0,0,0,0.28); }
+  .group section + section { margin-top: 20px; }
+  .group h2 + .names { margin-top: 12px; }
+
+  .names { column-count: 3; column-gap: 34px; }
+  .names li {
+    list-style: none;
+    color: var(--ink);
+    font-size: 18px;
+    line-height: 1.62;
+    break-inside: avoid;
+  }
+  .names li .cred { color: #5C6B67; }
+  .group.dark .names li { color: #FFFFFF; }
+  .group.dark .names li .cred { color: #A9C9C0; }
+
+  .spacer { flex: 1 0 auto; background: var(--navy); }
+
+  footer {
+    background: var(--navy-deep);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 20px 34px;
+  }
+  footer .line1 { font-size: 19px; }
+  footer .line2 { font-size: 17px; color: var(--gold); margin-top: 3px; }
+  footer .clock {
+    font-size: 17px;
+    opacity: 0.78;
+    margin-top: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wifi {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: none;
+  }
+  .wifi .copy { text-align: right; }
+  .wifi .invite {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1.25;
+  }
+  .wifi .net { font-size: 17px; margin-top: 5px; opacity: 0.9; }
+  .wifi .net b { font-weight: 600; }
+  .wifi .code {
+    background: #fff;
+    border-radius: 8px;
+    padding: 9px;
+    flex: none;
+    line-height: 0;
+    width: 108px;
+    height: 108px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    #stage { transition: transform 1.2s ease; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ============================================================
+   Portfolio demo — Beacon Ridge Commons is a fictional building
+   with an invented tenant roster. This is the same rendering
+   engine used for a real multi-tenant lobby directory board:
+   data in, laid-out portrait board out, built to run unattended
+   on a TV for months at a time (self-refreshing, no server).
+   ============================================================ */
+
+const BOARD = {
+
+  building: {
+    heading:  "Directory",
+    location: "Beacon Ridge Commons",
+    address:  "400 Alder Street"
+  },
+
+  /* BRC-white.png is a recolored version of BRC.png — the dark line
+     art swapped to white, amber sunburst left untouched — made so the
+     logo reads on the dark teal header instead of needing a white one. */
+  logo: {
+    show: true,
+    src: "BRC-white.png",
+    heightPx: 150,
+    headerBackground: "navy"
+  },
+
+  currentFloor: "1st floor",
+
+  floors: [
+    {
+      label: "1st floor",
+      hint: "",
+      suites: [
+        { num: "101", who: "Riverside Physical Therapy", dir: "→",
+          groups: [
+            { heading: "Therapists", people: [
+              "Okafor, Daniel, PT",
+              "Marchetti, Sofia, PT",
+              "Whitfield, Renee, OTR/L",
+              "Bosch, Marcus, PTA",
+              "Nakamura, Erin, PTA",
+              "Solheim, Kristian, PT",
+              "Abara, Ngozi, OT",
+              "Petrovic, Mila, PTA",
+              "Lindqvist, Axel, PT",
+              "Otieno, Faith, OTR/L"
+              ] }
+          ]
+        },
+        { num: "102", who: "Bayview Dermatology", dir: "←" },
+        { num: "103", who: "Conference Center",   dir: "↗" },
+        { num: "104", who: "QuickLab Diagnostics", dir: "↗" }
+      ]
+    },
+    {
+      label: "2nd floor",
+      hint: "Elevator and stairs to the right",
+      urgent: { show: true, where: "Suite 201" },
+      suites: [
+        { num: "201", who: "Ridgeview Family Medicine", note: "Walk-in care",
+          groups: [
+            { heading: "Physicians", people: [
+              "Alvarez, Priya, MD",
+              "Kowalski, Thomas, MD",
+              "Denholm, Grace, MD",
+              "Ferreira, Lucas, DO",
+              "Yun, Michael, MD",
+              "Castellano, Ana, MD",
+              "Broussard, Wade, MD",
+              "Ishikawa, Naomi, MD",
+              "Larsen, Peter, MD",
+              "Okwuosa, Chidi, MD"
+              ] },
+            { heading: "Advanced practice providers", people: [
+              "Lindgren, Casey, FNP-C",
+              "Adeyemi, Tola, FNP-C",
+              "Reyes, Marisol, CFNP",
+              "Boucher, Owen, FNP-C",
+              "Halvorsen, Ida, FNP-C",
+              "Pham, Trevor, CFNP",
+              "Kessler, Nadia, FNP-C",
+              "Odom, Marcus, FNP-C",
+              "Vitale, Rosa, CFNP"
+              ] }
+          ]
+        },
+        { num: "202", who: "Willow Creek Wellness" },
+        { num: "203", who: "Vacant", note: "For lease — see Suite 301", vacant: true },
+        { num: "204", who: "Bright Path Counseling" }
+      ]
+    },
+    {
+      label: "3rd floor",
+      hint: "Elevator and stairs to the right",
+      suites: [
+        { num: "301", who: "Property Management Office" },
+        { num: "302", who: "Alder Street Law Group" },
+        { num: "303", who: "Meridian Bookkeeping & Tax" },
+        { num: "304", who: "Swift Systems" }
+      ]
+    }
+  ],
+
+  /* Roster panel treatment:
+       "paper"  warm off-white, maximum contrast, brightest
+       "muted"  light warm gray, same hierarchy with less glare
+       "dark"   navy panel with white text, quietest, most cohesive */
+  rosterTheme: "paper",
+
+  footer: {
+    line1: "Sample directory — for portfolio demonstration only",
+    line2: "example.com/directory",
+    showClock: true
+  },
+
+  /* Placeholder only — the QR below encodes this text verbatim,
+     not a real network-join string, so scanning it just shows
+     plain text instead of prompting a phone to connect to
+     anything. Swap in a real SSID/password pair for production
+     and it'll still render correctly. */
+  wifi: {
+    show: true,
+    invite: "Guest WiFi",
+    network: "Company WiFi",
+    password: "ask the front desk"
+  },
+
+  /* Canvas size in pixels. The board scales to fill whatever
+     screen it lands on, so these set the shape, not the size.
+     Portrait TV: 1080 x 1920.  Landscape TV: 1920 x 1080. */
+  canvas: { width: 1080, height: 1920 },
+
+  refreshMinutes: 15
+};
+
+const esc = s => String(s).replace(/[&<>"]/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function splitCred(entry) {
+  const parts = entry.split(",");
+  if (parts.length < 2) return [entry, ""];
+  const credWords = [];
+  while (parts.length > 1) {
+    const tail = parts[parts.length - 1].trim();
+    if (/^(MD|DO|DPM|PA-C|PA–C|DNP-C|CFNP|FNP-C|NP-C|OT|OTR\/L|CHT|PT|PTA|RN|APRN)$/i.test(tail)) {
+      credWords.unshift(parts.pop().trim());
+    } else break;
+  }
+  return [parts.join(",").trim(), credWords.join(", ")];
+}
+
+function render() {
+  const b = BOARD;
+  let h = "";
+
+  const wordmark = `<div class="wordmark">
+      <div class="name">BEACON RIDGE</div>
+      <div class="tag">Commons</div>
+    </div>`;
+
+  const useLogo = b.logo && b.logo.show && b.logo.src;
+  const brand = useLogo
+    ? `<div class="logo"><img src="${esc(b.logo.src)}"
+         style="height:${Number(b.logo.heightPx) || 92}px"
+         alt="Beacon Ridge Commons"
+         onerror="this.closest('.logo').outerHTML=window.__wordmark;
+                  document.querySelector('header').classList.remove('light')"></div>`
+    : wordmark;
+  window.__wordmark = wordmark;
+
+  const headerClass = (useLogo && b.logo.headerBackground === "white") ? ' class="light"' : "";
+
+  h += `<header${headerClass}>
+    ${brand}
+    <div class="building">
+      <div class="h1">${esc(b.building.heading)}</div>
+      <div class="h2">${esc(b.building.location)}</div>
+      <div class="h3">${esc(b.building.address)}</div>
+    </div>
+  </header>`;
+
+  const theme = esc(b.rosterTheme || "paper");
+
+  const groupBlock = (groups) => {
+    if (!groups || !groups.length) return "";
+    let g = `<div class="group ${theme}">`;
+    groups.forEach(sec => {
+      const sorted = [...sec.people].sort((a, z) =>
+        a.localeCompare(z, "en", { sensitivity: "base" }));
+      g += `<section><h2>${esc(sec.heading)}</h2><ul class="names">`;
+      sorted.forEach(p => {
+        const [nm, cr] = splitCred(p);
+        g += `<li>${esc(nm)}${cr ? `<span class="cred">, ${esc(cr)}</span>` : ""}</li>`;
+      });
+      g += `</ul></section>`;
+    });
+    return g + `</div>`;
+  };
+
+  b.floors.forEach(f => {
+    const here = b.currentFloor && f.label === b.currentFloor;
+    const hint = here ? (f.hint ? f.hint + " · You are here" : "You are here") : f.hint;
+    h += `<div class="floorband${here ? " here" : ""}"><span>${esc(f.label)}</span>` +
+         (hint ? `<span class="hint">${esc(hint)}</span>` : "") + `</div>`;
+
+    if (f.urgent && f.urgent.show) {
+      h += `<div class="urgent">
+        <div class="cross"></div>
+        <div class="label">Urgent care</div>
+        <div class="where">${esc(f.urgent.where)}</div>
+      </div>`;
+    }
+
+    f.suites.forEach(s => {
+      let right = "";
+      if (s.dir)       right = `<div class="dir">${esc(s.dir)}</div>`;
+      else if (s.note) right = `<div class="note">${esc(s.note)}</div>`;
+      h += `<div class="suite${s.vacant ? " vacant" : ""}">
+              <div class="num">${esc(s.num)}</div>
+              <div class="who">${esc(s.who)}</div>
+              ${right}
+            </div>`;
+      h += groupBlock(s.groups);
+    });
+  });
+
+  h += `<div class="spacer"></div>`;
+
+  const wifiBlock = (b.wifi && b.wifi.show) ? `
+    <div class="wifi">
+      <div class="copy">
+        <div class="invite">${esc(b.wifi.invite)}</div>
+        <div class="net">Scan to view &nbsp;·&nbsp; <b>${esc(b.wifi.network)}</b></div>
+        <div class="net">${esc(b.wifi.password)}</div>
+      </div>
+      <div class="code" id="wifiQr"></div>
+    </div>` : "";
+
+  h += `<footer>
+    <div>
+      <div class="line1">${esc(b.footer.line1)}</div>
+      <div class="line2">${esc(b.footer.line2)}</div>
+      ${b.footer.showClock ? `<div class="clock" id="clock"></div>` : ""}
+    </div>
+    ${wifiBlock}
+  </footer>`;
+
+  const stage = document.getElementById("stage");
+  stage.style.width  = b.canvas.width + "px";
+  stage.style.height = b.canvas.height + "px";
+  stage.innerHTML = h;
+}
+
+let shift = 0;
+function fit() {
+  const { width: cw, height: ch } = BOARD.canvas;
+  const scale = Math.min(window.innerWidth / cw, window.innerHeight / ch);
+  const offX = (window.innerWidth  - cw * scale) / 2;
+  const offY = (window.innerHeight - ch * scale) / 2;
+  const stage = document.getElementById("stage");
+  stage.style.transform =
+    `translate(${offX + shift}px, ${offY + shift}px) scale(${scale})`;
+}
+
+let lastClock = "";
+function tickClock() {
+  const el = document.getElementById("clock");
+  if (!el) return;
+  const now = new Date();
+  const date = now.toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric"
+  });
+  const time = now.toLocaleTimeString("en-US", {
+    hour: "numeric", minute: "2-digit", hour12: true
+  });
+  const text = date + "  ·  " + time;
+  if (text !== lastClock) { el.textContent = text; lastClock = text; }
+}
+
+function renderWifiQr() {
+  const el = document.getElementById("wifiQr");
+  if (!el || typeof QRCode === "undefined") return;
+  el.innerHTML = "";
+  // Encodes plain text, not a WIFI: join string — scanning it just
+  // shows this message rather than prompting a phone to connect to
+  // anything, and makes it unmistakable that this board is a demo.
+  new QRCode(el, {
+    text: "For Portfolio Demonstration Only",
+    width: 90,
+    height: 90,
+    colorDark: "#0D2B2E",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+render();
+fit();
+tickClock();
+renderWifiQr();
+
+window.addEventListener("resize", fit);
+setInterval(tickClock, 1000);
+
+/* Nudge the image a few pixels every 7 minutes so a static
+   layout doesn't etch itself into the panel — a burn-in guard
+   that matters when this runs on a TV around the clock. */
+setInterval(() => { shift = (shift + 2) % 6; fit(); }, 420000);
+
+/* Pick up edits to this file without touching the display. */
+setInterval(() => location.reload(), BOARD.refreshMinutes * 60000);
+</script>
+</body>
+</html>
