@@ -2,7 +2,7 @@
 
 A self-contained, data-driven lobby directory board built for unattended TV kiosks — portrait auto-scaling, self-refreshing, zero backend.
 
-**[Live demo →](#)** *(add your GitHub Pages link here once deployed)*
+**[Live demo →]([#](https://sleepyzip.github.io/Building-Directory-Board-Demo/))**
 
 ## What is this?
 
